@@ -76,8 +76,7 @@ export class PersonsService {
   }
 
   async update(person: PersonDocument, updatePersonDto: UpdatePersonDto) {
-    await person.update(updatePersonDto);
-
+    await person.updateOne(updatePersonDto);
     return person;
   }
 }
