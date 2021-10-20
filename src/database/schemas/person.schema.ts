@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Expose } from 'class-transformer';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 
 export type PersonDocument = Person & Document;
 
@@ -17,7 +17,9 @@ export class Person {
   @Expose()
   lastName: string;
 
-  @Prop()
+  @Prop({
+    type: MongooseSchema.Types.Date,
+  })
   @Expose()
   dob: Date;
 
