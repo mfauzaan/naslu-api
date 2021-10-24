@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PersonsModule } from './modules/persons/persons.module';
 import { IslandsModule } from './modules/islands/islands.module';
+import { AddressModule } from './modules/address/address.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { IslandsModule } from './modules/islands/islands.module';
     MongooseModule.forRoot(process.env.MONGO_CONNECTION_URI),
     PersonsModule,
     IslandsModule,
+    AddressModule,
   ],
   controllers: [AppController],
   providers: [AppService],
