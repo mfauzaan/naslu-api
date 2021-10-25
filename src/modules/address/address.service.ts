@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Address, AddressDocument } from 'src/database/schemas/address.schema';
@@ -6,6 +6,7 @@ import { CreateAddressDto } from './dto/create-address.dto';
 import { GetAllAddressOptionsDto } from './dto/get-all-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
 import { identity, pickBy } from 'lodash';
+import { isMongoId } from 'class-validator';
 
 @Injectable()
 export class AddressService {
@@ -62,12 +63,23 @@ export class AddressService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} address`;
+  async findOne(id: string): Promise<AddressDocument> {
+    if (!id || !isMongoId(id)) {
+      throw new UnprocessableEntityException([
+        'Validation failed (uuid  is expected)',
+      ]);
+    }
+
+    const address = await this.addressModel.findById(id).exec();
+
+    if (!address) throw new BadRequestException('Address not found');
+
+    return address;
   }
 
-  update(id: number, updateAddressDto: UpdateAddressDto) {
-    return `This action updates a #${id} address`;
+  async update(address: AddressDocument, updateAddressDto: UpdateAddressDto) {
+    await address.updateOne(updateAddressDto);
+    return address;
   }
 
   remove(id: number) {
