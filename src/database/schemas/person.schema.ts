@@ -33,7 +33,10 @@ export class Person {
   @Expose()
   gender: string;
 
-  @Prop()
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'Address',
+  })
   @Expose()
   address: string;
 

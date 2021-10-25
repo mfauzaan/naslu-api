@@ -45,6 +45,7 @@ export class PersonsService {
           .sort({
             createdAt: 'desc',
           })
+          .populate('address')
           .exec(),
         this.personModel.count(),
       ]);
