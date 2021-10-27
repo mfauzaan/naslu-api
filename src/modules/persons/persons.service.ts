@@ -122,6 +122,14 @@ export class PersonsService {
       }) as any,
     ]);
 
+    if (relatives.father) {
+      relatives.father['__v'] = true;
+    }
+
+    if (relatives.mother) {
+      relatives.mother['__v'] = true;
+    }
+
     children.unshift(...[relatives.father, relatives.mother]);
 
     return compact(children);
