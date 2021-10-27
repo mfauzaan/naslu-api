@@ -83,7 +83,26 @@ export class PersonsService {
         this.personModel.count(
           pickBy(
             {
-              firstName: search && { $regex: `.*${search}.*`, $options: 'i' },
+              $or: search && [
+                {
+                  firstName: search && {
+                    $regex: `.*${search}.*`,
+                    $options: 'i',
+                  },
+                },
+                {
+                  lastName: search && {
+                    $regex: `.*${search}.*`,
+                    $options: 'i',
+                  },
+                },
+                {
+                  idCardNumber: search && {
+                    $regex: `.*${search}.*`,
+                    $options: 'i',
+                  },
+                },
+              ],
               gender,
             },
             identity,
