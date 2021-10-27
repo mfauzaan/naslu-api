@@ -8,7 +8,7 @@ import {
   Query,
   UseInterceptors,
 } from '@nestjs/common';
-import { PersonDocument } from 'src/database/schemas/person.schema';
+import { Person, PersonDocument } from 'src/database/schemas/person.schema';
 import { SerializerInterceptor } from 'src/utils/serializer.interceptor';
 import { CreatePersonDto } from './dto/create-person.dto';
 import {
@@ -34,6 +34,12 @@ export class PersonsController {
     @Query() options: GetAllPersonsOptionsDto,
   ): Promise<GetAllPersonsDto> {
     return this.personsService.findAll(options);
+  }
+
+  @UseInterceptors(new SerializerInterceptor(Person))
+  @Get(':id')
+  show(@Param('id', GetPersonPipe) person: PersonDocument) {
+    return person;
   }
 
   @Patch(':id')

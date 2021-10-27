@@ -13,6 +13,7 @@ import {
   GetAllPersonsOptionsDto,
 } from './dto/get-all-persons.dto';
 import { UpdatePersonDto } from './dto/update-person.dto';
+import { pickBy, identity } from 'lodash';
 
 @Injectable()
 export class PersonsService {
@@ -34,20 +35,60 @@ export class PersonsService {
 
   async findAll(options: GetAllPersonsOptionsDto): Promise<GetAllPersonsDto> {
     try {
-      const { perPage = 30, page = 1 } = options;
+      const { perPage = 30, page = 1, search, gender } = options;
 
       const [data, count] = await Promise.all([
         this.personModel
-          .find()
+          .find(
+            pickBy(
+              {
+                $or: search && [
+                  {
+                    firstName: search && {
+                      $regex: `.*${search}.*`,
+                      $options: 'i',
+                    },
+                  },
+                  {
+                    lastName: search && {
+                      $regex: `.*${search}.*`,
+                      $options: 'i',
+                    },
+                  },
+                  {
+                    idCardNumber: search && {
+                      $regex: `.*${search}.*`,
+                      $options: 'i',
+                    },
+                  },
+                ],
+                gender,
+              },
+              identity,
+            ),
+          )
           .limit(perPage)
           .skip(perPage * (page - 1))
           .where(options)
           .sort({
             createdAt: 'desc',
           })
-          .populate('address')
+          .populate({
+            path: 'address',
+            populate: {
+              path: 'island',
+            },
+          })
           .exec(),
-        this.personModel.count(),
+        this.personModel.count(
+          pickBy(
+            {
+              firstName: search && { $regex: `.*${search}.*`, $options: 'i' },
+              gender,
+            },
+            identity,
+          ),
+        ),
       ]);
 
       return {
