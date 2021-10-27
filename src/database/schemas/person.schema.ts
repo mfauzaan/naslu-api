@@ -40,6 +40,20 @@ export class Person {
   @Expose()
   address: string;
 
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'Person',
+  })
+  @Expose()
+  mother: string;
+
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'Person',
+  })
+  @Expose()
+  father: string;
+
   @Expose()
   createdAt: string;
 

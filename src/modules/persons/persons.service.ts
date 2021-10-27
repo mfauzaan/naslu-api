@@ -13,7 +13,7 @@ import {
   GetAllPersonsOptionsDto,
 } from './dto/get-all-persons.dto';
 import { UpdatePersonDto } from './dto/update-person.dto';
-import { pickBy, identity } from 'lodash';
+import { pickBy, identity, compact } from 'lodash';
 
 @Injectable()
 export class PersonsService {
@@ -37,36 +37,37 @@ export class PersonsService {
     try {
       const { perPage = 30, page = 1, search, gender } = options;
 
+      // Filters
+      const filterOptions = pickBy(
+        {
+          $or: search && [
+            {
+              firstName: search && {
+                $regex: `.*${search}.*`,
+                $options: 'i',
+              },
+            },
+            {
+              lastName: search && {
+                $regex: `.*${search}.*`,
+                $options: 'i',
+              },
+            },
+            {
+              idCardNumber: search && {
+                $regex: `.*${search}.*`,
+                $options: 'i',
+              },
+            },
+          ],
+          gender,
+        },
+        identity,
+      );
+
       const [data, count] = await Promise.all([
         this.personModel
-          .find(
-            pickBy(
-              {
-                $or: search && [
-                  {
-                    firstName: search && {
-                      $regex: `.*${search}.*`,
-                      $options: 'i',
-                    },
-                  },
-                  {
-                    lastName: search && {
-                      $regex: `.*${search}.*`,
-                      $options: 'i',
-                    },
-                  },
-                  {
-                    idCardNumber: search && {
-                      $regex: `.*${search}.*`,
-                      $options: 'i',
-                    },
-                  },
-                ],
-                gender,
-              },
-              identity,
-            ),
-          )
+          .find(filterOptions)
           .limit(perPage)
           .skip(perPage * (page - 1))
           .where(options)
@@ -80,34 +81,7 @@ export class PersonsService {
             },
           })
           .exec(),
-        this.personModel.count(
-          pickBy(
-            {
-              $or: search && [
-                {
-                  firstName: search && {
-                    $regex: `.*${search}.*`,
-                    $options: 'i',
-                  },
-                },
-                {
-                  lastName: search && {
-                    $regex: `.*${search}.*`,
-                    $options: 'i',
-                  },
-                },
-                {
-                  idCardNumber: search && {
-                    $regex: `.*${search}.*`,
-                    $options: 'i',
-                  },
-                },
-              ],
-              gender,
-            },
-            identity,
-          ),
-        ),
+        this.personModel.count(pickBy(filterOptions)),
       ]);
 
       return {
@@ -134,6 +108,23 @@ export class PersonsService {
     if (!person) throw new BadRequestException('Person not found');
 
     return person;
+  }
+
+  async getRelatives(person: PersonDocument) {
+    const [relatives, children] = await Promise.all([
+      await person.populate(['father', 'mother']),
+      this.personModel.find({
+        father: person.father || '61752567dd11e185ed1cae61',
+        mother: person.mother || '61752567dd11e185ed1cae61',
+        _id: {
+          $ne: person._id,
+        },
+      }) as any,
+    ]);
+
+    children.unshift(...[relatives.father, relatives.mother]);
+
+    return compact(children);
   }
 
   async update(person: PersonDocument, updatePersonDto: UpdatePersonDto) {

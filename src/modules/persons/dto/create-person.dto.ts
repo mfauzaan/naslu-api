@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsDate, IsOptional, IsString } from 'class-validator';
+import { IsDate, IsMongoId, IsOptional, IsString } from 'class-validator';
 
 export class CreatePersonDto {
   @IsString()
@@ -18,6 +18,12 @@ export class CreatePersonDto {
   @IsString()
   gender: string;
 
-  @IsString()
+  @IsMongoId()
   address: string;
+
+  @IsMongoId()
+  father: string;
+
+  @IsMongoId()
+  mother: string;
 }

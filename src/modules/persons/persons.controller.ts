@@ -36,6 +36,12 @@ export class PersonsController {
     return this.personsService.findAll(options);
   }
 
+  @Get(':id/relatives')
+  // @UseInterceptors(new SerializerInterceptor(Person))
+  async getRelatives(@Param('id', GetPersonPipe) person: PersonDocument) {
+    return this.personsService.getRelatives(person);
+  }
+
   @UseInterceptors(new SerializerInterceptor(Person))
   @Get(':id')
   show(@Param('id', GetPersonPipe) person: PersonDocument) {
