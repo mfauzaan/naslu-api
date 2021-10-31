@@ -38,7 +38,7 @@ export class Person {
     ref: 'Address',
   })
   @Expose()
-  address: string;
+  address: Record<string, any>;
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,

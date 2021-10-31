@@ -19,7 +19,7 @@ export class CreatePersonDto {
   gender: string;
 
   @IsMongoId()
-  address: string;
+  address: any;
 
   @IsMongoId()
   father: string;

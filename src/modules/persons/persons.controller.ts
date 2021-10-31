@@ -44,8 +44,15 @@ export class PersonsController {
 
   @UseInterceptors(new SerializerInterceptor(Person))
   @Get(':id')
-  show(@Param('id', GetPersonPipe) person: PersonDocument) {
-    return person;
+  async show(@Param('id', GetPersonPipe) person: PersonDocument) {
+    const newPerson = await person.populate({
+      path: 'address',
+      populate: {
+        path: 'island',
+      },
+    });
+
+    return newPerson;
   }
 
   @Patch(':id')
